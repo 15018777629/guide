@@ -16,5 +16,23 @@ new Guide.Builder(this)
          .build()
          .show();
 ```
-### 效果如下（忽略红色文字）
+#### 效果如下（忽略红色文字）
+![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot1.jpg)
+## 现在来实现一个圆形洞，带有引导图的引导层
+```java
+float density = getResources().getDisplayMetrics().density;
+Guide.ViewParams viewParams = new Guide.ViewParams(findViewById(R.id.ivBack));
+// 设置挖洞类型为圆形
+viewParams.state = Guide.State.CIRCLE;
+// 设置引导图资源
+viewParams.guideRes = R.drawable.fangqibianji_layey;
+// 因为这张引导图左边有一些透明边界，显示位置不太好，所以设置引导图在X轴上的偏移
+viewParams.offX = (int) (-17 * density);
+new Guide.Builder(this)
+         .outsideTouchable(false)
+         .guideSingelView(viewParams)            //设置单个引导
+         .build()
+         .show();
+```
+#### 效果如下（绿色的为引导图）
 ![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot1.jpg)
