@@ -36,3 +36,51 @@ new Guide.Builder(this)
 ```
 #### 效果如下（绿色的为引导图）
 ![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot2.png)
+
+## 来一个终极版多个引导，同时显示和分步显示
+```java
+float density = getResources().getDisplayMetrics().density;
+List<Guide.ViewParams> views = new ArrayList<>();
+
+Guide.ViewParams rParams = new Guide.ViewParams(findViewById(R.id.ivBack));
+rParams.guideRes = R.drawable.fangqibianji_layey;
+rParams.offX = (int) (-15 * density);
+views.add(rParams);
+
+//需要引导的控件参数
+Guide.ViewParams cParams = new Guide.ViewParams(findViewById(R.id.ivFlashSwitch));
+//挖洞的类型
+cParams.state = Guide.State.CIRCLE;
+//引导图的X偏移
+cParams.offX = (int) (15 * density);
+//引导图的Y偏移
+cParams.offY = (int) (10 * density);
+//引导图资源文件
+cParams.guideRes = R.drawable.shanguandeng_layer;
+views.add(cParams);
+
+Guide.ViewParams oParams = new Guide.ViewParams(findViewById(R.id.ivCameraSwitch));
+oParams.state = Guide.State.OVAL;
+oParams.offX = (int) (15 * density);
+oParams.offY = (int) (10 * density);
+oParams.guideRes = R.drawable.qiehuanshexiangtou_layer;
+views.add(oParams);
+
+Guide.ViewParams oParams1 = new Guide.ViewParams(findViewById(R.id.btnBack));
+oParams1.state = Guide.State.OVAL;
+oParams1.offX = - (getResources().getDisplayMetrics().widthPixels / 2);
+oParams1.guideRes = R.drawable.shanchutishi_layey;
+views.add(oParams1);
+
+new Guide.Builder(this)
+         .backgroundColor(0xAA000000)     // 设置引导层背景色
+         .oneByOne(false)                  // 设置是否一个接一个显示引导
+         .outsideTouchable(false)         // 设置除targetView（需要挖洞的控件）外是否可以点击
+         .guideViews(views)               // 设置多个引导
+         .build()
+         .show();
+```
+
+
+
+
