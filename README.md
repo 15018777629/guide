@@ -80,7 +80,15 @@ new Guide.Builder(this)
          .build()
          .show();
 ```
+#### 全部显示效果如下
+![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot3.png)
 
+#### oneByOne显示效果如下，oneByOne(true)
+![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot4.gif)
+
+## PS备注：
+如果还有什么不清楚的地方可以下载源代码查看，里面一共只有两个类，注释也写的比较清楚  
+最后的最后，如果喜欢或对你有帮助点个小星星好了
 
 
 
