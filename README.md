@@ -16,3 +16,5 @@ new Guide.Builder(this)
          .build()
          .show();
 ```
+###效果如下（忽略红色文字）
+![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot1.jpg)
