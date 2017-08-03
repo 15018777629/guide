@@ -35,4 +35,4 @@ new Guide.Builder(this)
          .show();
 ```
 #### 效果如下（绿色的为引导图）
-![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot2.jpg)
+![Screenshot](https://github.com/15018777629/guide/blob/master/screens/screenshot2.png)
