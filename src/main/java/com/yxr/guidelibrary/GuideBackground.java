@@ -10,6 +10,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,6 +29,7 @@ public class GuideBackground extends View {
     private boolean isNeedInit = true;
     private int mCurrIndex = 0;
     private GuideListener guideListener;
+    private TextPaint textPaint;
 
     public GuideBackground(Context context) {
         super(context);
@@ -36,7 +40,11 @@ public class GuideBackground extends View {
     private void init() {
         paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setTextSize(15 * getContext().getResources().getDisplayMetrics().density);
+
+        textPaint = new TextPaint();
+        textPaint.setColor(Color.WHITE);
+        textPaint.setTextSize(15 * getContext().getResources().getDisplayMetrics().density);
+        textPaint.setAntiAlias(true);
     }
 
     /**
@@ -118,10 +126,31 @@ public class GuideBackground extends View {
         if (p == null || p.rect == null || canvas == null || p.guideRes != 0)
             return;
         String des = p.des == null ? "this is des" : p.des;
-        int x = p.rect.left > canvasWidth - p.rect.right ? (int) (p.rect.left - des.length() * paint.getTextSize()) : (int) (p.rect.right - des.length() * paint.getTextSize() / 2);
-        int y = p.rect.top > canvasHeight - p.rect.bottom ? (int) (p.rect.top - paint.getTextSize() * 2)  : (int) (p.rect.bottom + paint.getTextSize() * 2);
-        paint.setColor(Color.WHITE);
-        canvas.drawText(des,x,y,paint);
+        int x = p.rect.left > canvasWidth - p.rect.right ?
+                Math.max(50,(int) (p.rect.left - des.length() * paint.getTextSize() / 2)) :
+                Math.max(50,(int) (p.rect.right - des.length() * paint.getTextSize() / 4));
+
+        int column = 0;
+        String[] split = des.split("\\n");
+        if (split != null && split.length > 0)
+            column = split.length - 1;
+
+
+        int y = p.rect.top > canvasHeight - p.rect.bottom ?
+                Math.max(50,(int) (p.rect.top - paint.getTextSize() * (2 + column)))  :
+                (int) (p.rect.bottom + paint.getTextSize() * 2);
+
+        x = x + p.offX;
+        y = y + p.offY;
+
+        StaticLayout layout = new StaticLayout(des, textPaint, canvasWidth - x,
+                Layout.Alignment.ALIGN_NORMAL, 1.0F, 0.0F, true);
+        canvas.save();
+        //从x，y开始画
+        canvas.translate(x, y);
+        layout.draw(canvas);
+        //别忘了restore
+        canvas.restore();
     }
 
     /**
@@ -147,13 +176,24 @@ public class GuideBackground extends View {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), p.guideRes);
         if (bitmap == null)
             return;
+        int len1 = 0;
+        int len2 = 0;
+        if (p.state == Guide.State.OVAL){
+            len1 = (int) (((p.rect.right - p.rect.left) * Math.sqrt(2) - (p.rect.right - p.rect.left)) / 2);
+            len2 = (int) (((p.rect.bottom - p.rect.top) * Math.sqrt(2) - (p.rect.bottom - p.rect.top)) / 2);
+        }else if (p.state == Guide.State.CIRCLE){
+            int radiu = (int) Math.sqrt((p.rect.right - p.rect.left) * (p.rect.right - p.rect.left) + (p.rect.bottom - p.rect.top) * (p.rect.bottom - p.rect.top));
+            len1 = (radiu - (p.rect.right - p.rect.left)) / 2;
+            len2 = (radiu - (p.rect.bottom - p.rect.top)) / 2;
+        }
+
         int x = p.rect.left > canvas.getWidth() - p.rect.right ?
-                 p.rect.left - bitmap.getWidth() + (p.rect.right - p.rect.left) / 2 + p.offX:
-                 p.rect.right - (p.rect.right - p.rect.left) / 2 + p.offX;
+                 p.rect.left - len1 - bitmap.getWidth() + (p.rect.right - p.rect.left) / 2 + p.offX:
+                 p.rect.right + len2 - (p.rect.right - p.rect.left) / 2 + p.offX;
 
         int y = p.rect.top > canvas.getHeight() - p.rect.bottom ?
-                p.rect.top - bitmap.getHeight() + p.offY :
-                p.rect.bottom + p.offY;
+                p.rect.top - len2 - bitmap.getHeight() + p.offY :
+                p.rect.bottom + len2 + p.offY;
 
         canvas.drawBitmap(bitmap,x,y,paint);
         bitmap.recycle();
@@ -223,13 +263,13 @@ public class GuideBackground extends View {
         if (params == null){
             if (MotionEvent.ACTION_DOWN == ev.getAction())
                 onNext();
-            return super.dispatchTouchEvent(ev);
+            return true;
         }
         //如果除了targetView也可以触发事件，点击任意区域都将进入下一个引导
         if (params.outsideTouchable){
             if (MotionEvent.ACTION_DOWN == ev.getAction())
                 onNext();
-            return super.dispatchTouchEvent(ev);
+            return true;
         }
         boolean touchable = false;
         //如果是oneByOne只有点击当前targetView才可以触发事件，进入下一个引导
@@ -260,7 +300,7 @@ public class GuideBackground extends View {
         if (MotionEvent.ACTION_DOWN == ev.getAction() && touchable)
             onNext();
 
-        return touchable ? touchable : super.dispatchTouchEvent(ev);
+        return true;
     }
 
     /**触发事件，下一步引导或者结束引导*/
